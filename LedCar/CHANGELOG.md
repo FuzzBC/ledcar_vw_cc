@@ -7,6 +7,20 @@ Used as the release notes body when publishing via `publish_release.ps1`
 (the script pulls the entry matching the current `versionName` straight out
 of this file).
 
+## 1.009
+- Hardens `BleDeviceManager` against BLE stacks that silently fail a
+  characteristic write: the write characteristic's write type is now set
+  explicitly from its actual declared GATT properties (LEDCAR-01 modules
+  only support "Write Without Response") instead of relying on the stack
+  default, the synchronous return value of `writeCharacteristic()` is now
+  checked and retried on rejection, and a 4-second watchdog force-clears a
+  stuck write if `onCharacteristicWrite` never lands. Ported from the same
+  fix in `ledcar_vw_cc_headunit` V1.004, where it fixed a real "connected
+  but no command works" report on head-unit hardware - applying it here too
+  since the root cause (an unset write type + no return-value check) isn't
+  head-unit-specific, just far more likely to actually bite on flakier BLE
+  stacks.
+
 ## 1.008
 - Changed: new app icon - a neon VW badge, properly transparent (real alpha
   channel, not a flattened white background) and recentered/rescaled within

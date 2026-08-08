@@ -7,6 +7,12 @@ Used as the release notes body when publishing via `publish_release.ps1`
 (the script pulls the entry matching the current `versionName` straight out
 of this file).
 
+## 1.003
+- Changed: the zone-selector pill's "both RGB and DMX selected" indicator
+  was a plain white breathing glow, easy to mistake for a dim single-zone
+  border. It's now a full-color rainbow ring continuously rotating around
+  the pill.
+
 ## 1.002
 - Fixed: some real LEDCAR-01 units never showed up to connect. The scanner
   required the device to advertise its BLE service UUID before it would even

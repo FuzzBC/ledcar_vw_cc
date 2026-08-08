@@ -7,6 +7,15 @@ Used as the release notes body when publishing via `publish_release.ps1`
 (the script pulls the entry matching the current `versionName` straight out
 of this file).
 
+## 1.007
+- Changed: saved-color "egg" swatches are now a stand-up pill (20x35dp)
+  split by a clean diagonal from bottom-left to top-right, instead of the
+  old plain oval split straight across.
+- Changed: the power button's on/off glyph is now a real vector lightning
+  bolt icon instead of a plain Unicode character - renders identically on
+  every device instead of depending on the system font, and reads as more
+  on-theme for a lighting controller.
+
 ## 1.006
 - Changed: the "both RGB and DMX selected" indicator is now a two-color band
   sweeping back and forth around the pill, Knight Rider style, with a soft

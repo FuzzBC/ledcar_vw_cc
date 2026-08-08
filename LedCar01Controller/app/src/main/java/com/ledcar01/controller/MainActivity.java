@@ -390,37 +390,18 @@ public class MainActivity extends AppCompatActivity implements BleDeviceManager.
     private void rebuildSavedEggs() {
         savedEggsRow.removeAllViews();
         List<SavedColorStore.SavedEgg> eggs = store.getEggs();
-        int eggWidth = dp(32);
-        int eggHeight = dp(48);
+        int eggWidth = dp(20);
+        int eggHeight = dp(35);
         int margin = dp(10);
         for (int i = 0; i < eggs.size(); i++) {
             SavedColorStore.SavedEgg egg = eggs.get(i);
             int index = i;
 
-            LinearLayout eggView = new LinearLayout(this);
-            eggView.setOrientation(LinearLayout.VERTICAL);
-            eggView.setOutlineProvider(new ViewOutlineProvider() {
-                @Override
-                public void getOutline(View view, Outline outline) {
-                    outline.setOval(0, 0, view.getWidth(), view.getHeight());
-                }
-            });
-            eggView.setClipToOutline(true);
-
-            // Purely visual split (DMX color on top, RGB color on bottom) - neither
-            // half has its own listener, so the whole egg is one tap target.
-            View dmxHalf = new View(this);
-            dmxHalf.setBackgroundColor(Color.rgb(egg.dmx.r, egg.dmx.g, egg.dmx.b));
-            dmxHalf.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
-
-            View rgbHalf = new View(this);
-            rgbHalf.setBackgroundColor(Color.rgb(egg.rgb.r, egg.rgb.g, egg.rgb.b));
-            rgbHalf.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
-
-            eggView.addView(dmxHalf);
-            eggView.addView(rgbHalf);
+            // Pill shape (matches the app's own button/zone-selector language)
+            // split by a diagonal instead of a straight line - DMX toward the
+            // left, RGB toward the right. One tap target for the whole swatch.
+            DiagonalSwatchView eggView = new DiagonalSwatchView(this);
+            eggView.setColors(Color.rgb(egg.dmx.r, egg.dmx.g, egg.dmx.b), Color.rgb(egg.rgb.r, egg.rgb.g, egg.rgb.b));
 
             eggView.setOnClickListener(v -> applySavedEgg(egg));
             eggView.setOnLongClickListener(v -> {
@@ -874,9 +855,15 @@ public class MainActivity extends AppCompatActivity implements BleDeviceManager.
         core.setShape(GradientDrawable.OVAL);
         core.setColor(color);
 
-        LayerDrawable layered = new LayerDrawable(new Drawable[]{outer, middle, core});
+        // Bolt icon as its own layer instead of button text - a real vector
+        // shape renders identically on every device, unlike the old Unicode
+        // power-symbol glyph which depended on the system font.
+        Drawable bolt = ContextCompat.getDrawable(this, R.drawable.ic_bolt);
+
+        LayerDrawable layered = new LayerDrawable(new Drawable[]{outer, middle, core, bolt});
         layered.setLayerInset(1, dp(3), dp(3), dp(3), dp(3));
         layered.setLayerInset(2, dp(6), dp(6), dp(6), dp(6));
+        layered.setLayerInset(3, dp(17), dp(17), dp(17), dp(17));
         return layered;
     }
 

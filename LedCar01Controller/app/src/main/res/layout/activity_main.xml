@@ -163,9 +163,6 @@
                         android:minHeight="0dp"
                         android:padding="0dp"
                         android:background="@drawable/bg_power_button"
-                        android:text="@string/power_symbol"
-                        android:textColor="@android:color/white"
-                        android:textSize="18sp"
                         android:enabled="false" />
 
                     <View

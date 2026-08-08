@@ -3,7 +3,6 @@
     <string name="app_name">FuZz CarAmbient</string>
     <string name="no_device">No device</string>
     <string name="scan_connect">Scan</string>
-    <string name="power_symbol">&#9212;</string>
     <string name="settings_symbol">&#9881;</string>
     <string name="zone_rgb">RGB</string>
     <string name="zone_dmx">DMX</string>

@@ -6,7 +6,10 @@ generic "car ambient light" DMX/RGB strips sold for VW CC and similar
 interiors) — built because the official app is clunky, ad-laden, and doesn't
 support independent RGB + DMX zone control.
 
-![App overview](docs/screenshots/app_overview.png)
+<p align="center">
+  <img src="docs/screenshots/app_overview.png" width="46%" alt="App overview" />
+  <img src="docs/screenshots/ambient_preview.png" width="46%" alt="Ambient interior preview" />
+</p>
 
 <p align="center">
   <img src="docs/screenshots/settings.png" width="30%" alt="Settings dialog" />
@@ -38,9 +41,7 @@ support independent RGB + DMX zone control.
   independently-tintable overlay layers (dash neon strip, footwell/door-handle/storage
   glow) that recolor in real time as you pick colors — the strip follows the
   DMX zone, the footwell/handle glow follows the RGB zone, and both scale
-  with each zone's own brightness.
-
-  ![Ambient preview](docs/screenshots/ambient_preview.png)
+  with each zone's own brightness (screenshot above).
 
 - **Connection-aware UI** — every control that would send a BLE command is
   disabled while disconnected or powered off, so there's no way to fire a

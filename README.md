@@ -7,14 +7,14 @@ interiors) — built because the official app is clunky, ad-laden, and doesn't
 support independent RGB + DMX zone control.
 
 <p align="center">
-  <img src="docs/screenshots/app_overview.png" width="46%" alt="App overview" />
-  <img src="docs/screenshots/ambient_preview.png" width="46%" alt="Ambient interior preview" />
+  <img src="docs/screenshots/app_overview_v2.png" width="46%" alt="App overview" />
+  <img src="docs/screenshots/ambient_preview_v2.png" width="46%" alt="Ambient interior preview" />
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/settings.png" width="30%" alt="Settings dialog" />
-  <img src="docs/screenshots/mode_picker.png" width="30%" alt="Mode picker dialog" />
-  <img src="docs/screenshots/custom_color.png" width="30%" alt="Custom RGB color dialog" />
+  <img src="docs/screenshots/settings_v2.png" width="30%" alt="Settings dialog" />
+  <img src="docs/screenshots/mode_picker_v2.png" width="30%" alt="Mode picker dialog" />
+  <img src="docs/screenshots/custom_color_v2.png" width="30%" alt="Custom RGB color dialog" />
 </p>
 
 ## What's in this repo

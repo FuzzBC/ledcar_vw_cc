@@ -7,6 +7,13 @@ Used as the release notes body when publishing via `publish_release.ps1`
 (the script pulls the entry matching the current `versionName` straight out
 of this file).
 
+## 1.004
+- Changed: the "both RGB and DMX selected" indicator is now a steady ring in
+  the blended RGB/DMX color with an occasional random flicker, like a
+  slightly flaky neon tube - also fixed the custom RGB color popup's slider
+  send timing, which was debouncing until the drag paused instead of
+  throttling live like every other continuous control in the app.
+
 ## 1.003
 - Changed: the zone-selector pill's "both RGB and DMX selected" indicator
   was a plain white breathing glow, easy to mistake for a dim single-zone

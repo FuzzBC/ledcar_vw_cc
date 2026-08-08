@@ -10,6 +10,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
@@ -36,8 +37,12 @@ public class RgbSliderDialog extends Dialog {
     private final int initialG;
     private final int initialB;
 
+    private static final long SEND_THROTTLE_MS = 100;
+
     private final Handler debounceHandler = new Handler(Looper.getMainLooper());
     private Runnable pendingSend;
+    private long lastSendAt = 0L;
+    private boolean sendScheduled = false;
 
     private SeekBar seekR;
     private SeekBar seekG;
@@ -158,12 +163,32 @@ public class RgbSliderDialog extends Dialog {
         return Math.round(value * density);
     }
 
+    /**
+     * True throttle, not a debounce: the first change in a quiet period sends
+     * immediately, and further changes while still dragging coalesce into at
+     * most one trailing send per {@link #SEND_THROTTLE_MS}, carrying the
+     * latest values - a plain debounce would never fire until the drag
+     * paused, which read as sluggish/unresponsive on real hardware.
+     */
     private void scheduleSend() {
-        if (pendingSend != null) {
-            debounceHandler.removeCallbacks(pendingSend);
-        }
         pendingSend = () -> listener.onColorChanged(seekR.getProgress(), seekG.getProgress(), seekB.getProgress());
-        debounceHandler.postDelayed(pendingSend, 100);
+        long elapsed = SystemClock.uptimeMillis() - lastSendAt;
+        if (elapsed >= SEND_THROTTLE_MS) {
+            runPendingSend();
+        } else if (!sendScheduled) {
+            sendScheduled = true;
+            debounceHandler.postDelayed(this::runPendingSend, SEND_THROTTLE_MS - elapsed);
+        }
+    }
+
+    private void runPendingSend() {
+        sendScheduled = false;
+        lastSendAt = SystemClock.uptimeMillis();
+        Runnable send = pendingSend;
+        pendingSend = null;
+        if (send != null) {
+            send.run();
+        }
     }
 
     @Override

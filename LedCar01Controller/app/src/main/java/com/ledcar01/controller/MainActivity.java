@@ -726,7 +726,8 @@ public class MainActivity extends AppCompatActivity implements BleDeviceManager.
         ZonePillHalf half = both ? ZonePillHalf.FULL : (rgbActive ? ZonePillHalf.LEFT : ZonePillHalf.RIGHT);
         // DMX-only marches the opposite way around the pill from RGB, so the two zones read as distinct.
         zoneMarchingBorder.setReversed(half == ZonePillHalf.RIGHT);
-        // Both zones active: breathing glow instead of dashes meeting at the seam.
+        // Both zones active: bounce-scanner effect instead of dashes meeting at the seam.
+        zoneMarchingBorder.setZoneColors(Color.rgb(rgbR, rgbG, rgbB), Color.rgb(dmxR, dmxG, dmxB));
         zoneMarchingBorder.setBreathingMode(both);
 
         int fullWidth = dp(ZONE_PILL_WIDTH_DP);

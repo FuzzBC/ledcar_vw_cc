@@ -3,22 +3,15 @@
 Future work, not yet scoped into implementation tasks. Newest/highest-level
 ideas first — each needs its own research pass before it becomes real work.
 
-## 1. Compatibility with older Android versions (e.g. Junsun head units)
+## 1. Compatibility with older Android versions (e.g. Junsun head units) — moved to its own repo
 
-`LedCar` currently targets `minSdk 26`. Cheap Android head
-units (Junsun and similar brands) often ship on much older Android builds
-(8.1, 7.1, sometimes older forks). Lowering `minSdk` isn't just a number
-change - a few BLE APIs currently in use are version-gated:
-
-- `BluetoothDevice.connectGatt(..., TRANSPORT_LE, PHY_LE_1M_MASK, Handler)`
-  (the 5-arg overload with an explicit PHY) needs API 26; older devices
-  need the classic 3-arg `connectGatt(context, autoConnect, callback)`.
-- Runtime permission model differs a lot pre-API 31 (`BLUETOOTH_SCAN`/
-  `BLUETOOTH_CONNECT` vs the old `BLUETOOTH`/`BLUETOOTH_ADMIN` + location
-  permission dance) - `BleDeviceManager`'s permission request flow would
-  need a real branch, not just a manifest `maxSdkVersion` tweak.
-- Need an actual low-end device (or an emulator image) to test against -
-  can't just lower the number and assume it works.
+This app (`LedCar`) stays `minSdk 26` - phones don't need a lower floor,
+and it's not worth carrying compatibility shims here. The older-Android
+work now lives in a separate fork,
+[ledcar_vw_cc_headunit](https://github.com/FuzzBC/ledcar_vw_cc_headunit)
+(`minSdk` lowered to 21, `connectGatt` falls back to the pre-API-26
+overload). See that repo's own `TODO.md` for what's still open there
+(mainly: untested on actual older/low-end hardware).
 
 ## 2. IFTTT / Tasker / Automate integration (time-of-day color presets)
 

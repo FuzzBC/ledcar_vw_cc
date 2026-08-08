@@ -6,6 +6,10 @@ generic "car ambient light" DMX/RGB strips sold for VW CC and similar
 interiors) — built because the official app is clunky, ad-laden, and doesn't
 support independent RGB + DMX zone control.
 
+**Running this on an older/embedded head unit (Junsun and similar), not a
+phone?** Use [ledcar_vw_cc_headunit](https://github.com/FuzzBC/ledcar_vw_cc_headunit)
+instead — same app, `minSdk` lowered for older Android builds.
+
 <p align="center">
   <img src="docs/screenshots/app_overview_v2.png" width="46%" alt="App overview" />
   <img src="docs/screenshots/ambient_preview_v2.png" width="46%" alt="Ambient interior preview" />

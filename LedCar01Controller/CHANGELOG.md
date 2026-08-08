@@ -7,6 +7,19 @@ Used as the release notes body when publishing via `publish_release.ps1`
 (the script pulls the entry matching the current `versionName` straight out
 of this file).
 
+## 1.006
+- Changed: the "both RGB and DMX selected" indicator is now a two-color band
+  sweeping back and forth around the pill, Knight Rider style, with a soft
+  glow genuinely allowed to bleed past the pill's edge - the border view is
+  given real canvas room around the pill for this in "both zones" mode
+  instead of being boxed in exactly at its edge (widened once more after
+  the first pass still read as too tight against the clip boundary).
+- Fixed: that glow-margin change initially reintroduced square corners,
+  because FrameLayout clips to its own padding by default regardless of any
+  rounded-corner outline set on it. Turning that default off
+  (`clipToPadding="false"`) let the outline's actual rounded clip take over
+  again.
+
 ## 1.005
 - Changed: the "both RGB and DMX selected" indicator is now two short bands
   (one RGB-colored, one DMX-colored) chasing each other around the pill with

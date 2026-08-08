@@ -21,9 +21,12 @@ import android.view.animation.LinearInterpolator;
  * format as GradientDrawable.setCornerRadii. Two modes:
  *  - Single zone selected: dashed "marching ants", RGB and DMX running in
  *    opposite directions (see setReversed) so the two read as distinct.
- *  - Both zones selected: two short bands, one in the RGB color and one in
- *    the DMX color, chasing each other continuously around the pill with a
- *    fixed gap between them.
+ *  - Both zones selected: a two-color band (the live RGB and DMX colors)
+ *    that sweeps back and forth around the pill, Knight Rider-style, with a
+ *    soft glow that's allowed to bleed a little past the pill's true edge -
+ *    the view itself is sized bigger than the pill in this mode (see
+ *    MainActivity.applyZoneUi's ZONE_GLOW_MARGIN_DP) specifically to give
+ *    that glow real canvas to spread into.
  */
 public class MarchingAntsView extends View {
 
@@ -31,19 +34,18 @@ public class MarchingAntsView extends View {
     private static final float DASH_OFF_DP = 5f;
     private static final float DASH_STROKE_DP = 2f;
     private static final long DASH_CYCLE_MS = 700;
-    private static final long CHASE_CYCLE_MS = 2400;
-    private static final float CHASE_STROKE_DP = 5f;
-    private static final float CHASE_GLOW_STROKE_DP = 14f;
-    /** Angular gap kept between the two bands, in degrees. */
-    private static final float CHASE_GAP_DEG = 90f;
+    private static final long SCAN_CYCLE_MS = 2600;
+    private static final float SCAN_STROKE_DP = 4f;
+    private static final float SCAN_GLOW_STROKE_DP = 12f;
     /**
-     * Extra inset reserved around the path in "both zones" mode so the
-     * stroke and its glow have room to spread before hitting the view's own
-     * (rectangular) bounds - without it, the soft round glow gets
-     * hard-clipped at the corners and reads as a faded rectangle instead of
-     * a rounded halo.
+     * How far the path is inset from this view's own bounds while breathing.
+     * Must match MainActivity's ZONE_GLOW_MARGIN_DP - that's how much extra
+     * width/height the view is given around the pill in "both zones" mode,
+     * and insetting the path back by the same amount recovers the pill's
+     * true edge for the crisp stroke, leaving the surrounding margin free
+     * for the blurred glow pass to spread into.
      */
-    private static final float BOTH_INSET_DP = 3f;
+    private static final float GLOW_MARGIN_DP = 8f;
 
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint glowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -55,9 +57,8 @@ public class MarchingAntsView extends View {
     private boolean breathing = false;
     private int rgbColor = Color.RED;
     private int dmxColor = Color.BLUE;
-    private SweepGradient rgbBandShader;
-    private SweepGradient dmxBandShader;
-    private float chaseProgress = 0f; // 0..1, loops continuously
+    private SweepGradient scanShader;
+    private float scanProgress = 0f; // 0..1, ping-ponged into a triangle wave in onDraw
     private float pivotX;
     private float pivotY;
 
@@ -71,7 +72,7 @@ public class MarchingAntsView extends View {
         paint.setStrokeWidth(dp(DASH_STROKE_DP));
         paint.setColor(Color.WHITE);
         glowPaint.setStyle(Paint.Style.STROKE);
-        glowPaint.setStrokeWidth(dp(CHASE_GLOW_STROKE_DP));
+        glowPaint.setStrokeWidth(dp(SCAN_GLOW_STROKE_DP));
         glowPaint.setColor(Color.WHITE);
         setWillNotDraw(false);
     }
@@ -81,7 +82,7 @@ public class MarchingAntsView extends View {
         this.reversed = reversed;
     }
 
-    /** Both zones active: swap the dashed marching border for the chasing-bands effect. */
+    /** Both zones active: swap the dashed marching border for the bounce-scanner effect. */
     public void setBreathingMode(boolean breathing) {
         if (this.breathing == breathing) {
             return;
@@ -95,12 +96,12 @@ public class MarchingAntsView extends View {
         }
     }
 
-    /** Live per-zone colors, one band per zone. */
+    /** Live per-zone colors, so the scanner band matches what's actually selected. */
     public void setZoneColors(int rgbColor, int dmxColor) {
         this.rgbColor = rgbColor;
         this.dmxColor = dmxColor;
         if (breathing) {
-            rebuildBandShaders();
+            rebuildScanShader();
             invalidate();
         }
     }
@@ -119,33 +120,33 @@ public class MarchingAntsView extends View {
 
     private void rebuildPath() {
         path.reset();
-        float inset = dp(breathing ? BOTH_INSET_DP : 1f);
+        float inset = dp(breathing ? GLOW_MARGIN_DP : 1f);
         RectF rect = new RectF(inset, inset, getWidth() - inset, getHeight() - inset);
         if (rect.width() <= 0 || rect.height() <= 0) {
             return;
         }
         if (breathing) {
-            // Chasing bands only ever apply to the full (both-zones) pill,
-            // where every corner is already equal - recompute the radius
-            // from the inset rect itself so it stays a true stadium shape
+            // The scanner only ever applies to the full (both-zones) pill.
+            // Insetting by GLOW_MARGIN_DP recovers the pill's true edge
+            // (the view itself is sized GLOW_MARGIN_DP bigger on every side
+            // in this mode - see the class doc) - recompute the radius from
+            // this inset rect itself so it stays a true stadium shape
             // instead of reusing the outer radius (sized for the un-inset
             // view) which would now be too large for the smaller rect.
             float r = rect.height() / 2f;
             path.addRoundRect(rect, r, r, Path.Direction.CW);
             pivotX = rect.centerX();
             pivotY = rect.centerY();
-            rebuildBandShaders();
+            rebuildScanShader();
         } else {
             path.addRoundRect(rect, radii, Path.Direction.CW);
         }
     }
 
-    private void rebuildBandShaders() {
-        int[] colors = {Color.TRANSPARENT, rgbColor, Color.TRANSPARENT, Color.TRANSPARENT};
-        float[] positions = {0f, 0.10f, 0.22f, 1f};
-        rgbBandShader = new SweepGradient(pivotX, pivotY, colors, positions);
-        int[] colors2 = {Color.TRANSPARENT, dmxColor, Color.TRANSPARENT, Color.TRANSPARENT};
-        dmxBandShader = new SweepGradient(pivotX, pivotY, colors2, positions);
+    private void rebuildScanShader() {
+        int[] colors = {Color.TRANSPARENT, rgbColor, dmxColor, Color.TRANSPARENT, Color.TRANSPARENT};
+        float[] positions = {0f, 0.18f, 0.30f, 0.42f, 1f};
+        scanShader = new SweepGradient(pivotX, pivotY, colors, positions);
     }
 
     @Override
@@ -163,7 +164,7 @@ public class MarchingAntsView extends View {
     private void restartAnimation() {
         stopAnimating();
         if (breathing) {
-            startChasing();
+            startScanning();
         } else {
             startDashing();
         }
@@ -172,7 +173,7 @@ public class MarchingAntsView extends View {
     private void startDashing() {
         paint.setAlpha(255);
         paint.clearShadowLayer();
-        paint.setShader(null);
+        paint.setShader(null); // clear any shader left over from "both zones" mode
         paint.setStrokeWidth(dp(DASH_STROKE_DP));
         float dashOn = dp(DASH_ON_DP);
         float dashOff = dp(DASH_OFF_DP);
@@ -188,16 +189,16 @@ public class MarchingAntsView extends View {
         animator.start();
     }
 
-    private void startChasing() {
+    private void startScanning() {
         paint.setPathEffect(null);
         paint.setAlpha(255);
-        paint.setStrokeWidth(dp(CHASE_STROKE_DP));
+        paint.setStrokeWidth(dp(SCAN_STROKE_DP));
         animator = ValueAnimator.ofFloat(0f, 1f);
-        animator.setDuration(CHASE_CYCLE_MS);
+        animator.setDuration(SCAN_CYCLE_MS);
         animator.setRepeatCount(ValueAnimator.INFINITE);
         animator.setInterpolator(new LinearInterpolator());
         animator.addUpdateListener(a -> {
-            chaseProgress = (float) a.getAnimatedValue();
+            scanProgress = (float) a.getAnimatedValue();
             invalidate();
         });
         animator.start();
@@ -213,25 +214,18 @@ public class MarchingAntsView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (breathing && rgbBandShader != null) {
-            float angle = chaseProgress * 360f;
-            drawBand(canvas, rgbBandShader, angle);
-            drawBand(canvas, dmxBandShader, angle + CHASE_GAP_DEG);
-        } else {
-            canvas.drawPath(path, paint);
+        if (breathing && scanShader != null) {
+            // Ping-pong the sweep back and forth (triangle wave) instead of
+            // spinning one direction continuously - reads as scanning, not rotating.
+            float triangle = scanProgress < 0.5f ? scanProgress * 2f : (1f - scanProgress) * 2f;
+            shaderMatrix.setRotate(triangle * 360f, pivotX, pivotY);
+            scanShader.setLocalMatrix(shaderMatrix);
+            glowPaint.setShader(scanShader);
+            glowPaint.setAlpha(210);
+            glowPaint.setMaskFilter(new BlurMaskFilter(dp(8), BlurMaskFilter.Blur.NORMAL));
+            canvas.drawPath(path, glowPaint);
+            paint.setShader(scanShader);
         }
-    }
-
-    private void drawBand(Canvas canvas, SweepGradient shader, float angle) {
-        shaderMatrix.setRotate(angle, pivotX, pivotY);
-        shader.setLocalMatrix(shaderMatrix);
-
-        glowPaint.setShader(shader);
-        glowPaint.setAlpha(190);
-        glowPaint.setMaskFilter(new BlurMaskFilter(dp(9), BlurMaskFilter.Blur.NORMAL));
-        canvas.drawPath(path, glowPaint);
-
-        paint.setShader(shader);
         canvas.drawPath(path, paint);
     }
 

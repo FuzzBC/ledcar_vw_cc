@@ -726,6 +726,17 @@ public class MainActivity extends AppCompatActivity implements BleDeviceManager.
     private static final int ZONE_PILL_WIDTH_DP = 180;
     private static final int ZONE_PILL_HEIGHT_DP = 40;
     private static final long ZONE_SLIDE_DURATION_MS = 220;
+    /**
+     * How far the "both zones" effect's glow is allowed to bleed past the
+     * pill's true edge - zoneToggleContainer reserves this much padding
+     * around the pill (see activity_main.xml) specifically so there's real
+     * canvas room for it. Single-zone dash mode ignores this and hugs the
+     * pill exactly as before. Kept a few dp under that XML padding (12dp) so
+     * the glow's own blur fades out before reaching the container's hard
+     * clip edge, instead of getting cut off right at its softest, faintest
+     * point.
+     */
+    private static final int ZONE_GLOW_MARGIN_DP = 8;
 
     private enum ZonePillHalf { LEFT, RIGHT, FULL }
 
@@ -747,12 +758,22 @@ public class MainActivity extends AppCompatActivity implements BleDeviceManager.
         int borderWidth = both ? fullWidth : halfWidth;
         float targetTranslationX = half == ZonePillHalf.RIGHT ? halfWidth : 0f;
 
+        // Size the border view a bit bigger than the pill itself in "both"
+        // mode and pull it back with negative margins so it's still centered
+        // on the same spot - the extra canvas around the crisp band is
+        // exactly where the "both zones" effect's outward glow gets to
+        // spread. Single-zone dash mode keeps glowMargin at 0 and hugs the
+        // pill exactly as before.
+        int glowMargin = both ? dp(ZONE_GLOW_MARGIN_DP) : 0;
+        int targetWidth = borderWidth + glowMargin * 2;
+        int targetHeight = height + glowMargin * 2;
+
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) zoneMarchingBorder.getLayoutParams();
-        boolean widthChanged = params.width != borderWidth;
-        params.width = borderWidth;
-        params.height = height;
-        params.setMarginStart(0);
-        params.topMargin = 0;
+        boolean widthChanged = params.width != targetWidth;
+        params.width = targetWidth;
+        params.height = targetHeight;
+        params.setMarginStart(-glowMargin);
+        params.topMargin = -glowMargin;
         zoneMarchingBorder.setLayoutParams(params);
         zoneMarchingBorder.setCornerRadii(cornerRadiiForHalf(half));
 

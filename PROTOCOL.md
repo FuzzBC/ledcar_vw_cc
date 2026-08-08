@@ -3,7 +3,7 @@
 Reverse engineered from the decompiled vendor app (`com.home.net.NetConnectBle`,
 under `.decompiled/jadx_out/sources/com/home/net/NetConnectBle.java`) and
 confirmed against real vendor-app traffic captured by
-[LedCar01Simulator](LedCar01Simulator) on 2026-08-08.
+[LedCar_Simulator](LedCar_Simulator) on 2026-08-08.
 
 ## Transport
 
@@ -22,9 +22,9 @@ positions are filled with `0xFF`.
 ## Commands
 
 Builders live in
-[Car01Protocol.java](LedCar01Controller/app/src/main/java/com/ledcar01/controller/Car01Protocol.java);
+[Car01Protocol.java](LedCar/app/src/main/java/com/ledcar01/controller/Car01Protocol.java);
 the simulator's decoder is in
-[Program.cs](LedCar01Simulator/Program.cs).
+[Program.cs](LedCar_Simulator/Program.cs).
 
 | Command | Frame | Builder method | Status |
 |---|---|---|---|
@@ -98,7 +98,7 @@ resource arrays:
 | Tab | Frame | Id range | Source method / resource |
 |---|---|---|---|
 | "RGB Color" tab | `7E FF 03 <id> 03 FF FF FF EF` | 135–157 (23 effects) | `setRgbMode()` → `car_mode` array, see table below |
-| "DMX zone" tab | `7B FF 03 <id> FF FF FF FF BF` | 1–210, plus `255`=Auto | `setRgbMode()` (DMX branch) → `dmx_model` array (211 entries, all extracted into `DmxModeNames` in [Program.cs](LedCar01Simulator/Program.cs)) |
+| "DMX zone" tab | `7B FF 03 <id> FF FF FF FF BF` | 1–210, plus `255`=Auto | `setRgbMode()` (DMX branch) → `dmx_model` array (211 entries, all extracted into `DmxModeNames` in [Program.cs](LedCar_Simulator/Program.cs)) |
 
 Speed mirrors this split too:
 
@@ -157,10 +157,10 @@ reference:
 
 ## How this was verified
 
-1. [LedCar01Simulator](LedCar01Simulator) hosts a real BLE GATT peripheral on
+1. [LedCar_Simulator](LedCar_Simulator) hosts a real BLE GATT peripheral on
    a Windows PC (renamed to `LEDCAR-01-SIM01` so the vendor app's name-prefix
    filter accepts it) and logs every raw frame it receives, decoded.
-2. Connected both the custom [LedCar01Controller](LedCar01Controller) app and
+2. Connected both the custom [LedCar](LedCar) app and
    the original vendor app to it and exercised the controls.
 3. Power off and color changes from the **original vendor app** matched the
    predicted frames byte-for-byte, confirming the reverse-engineered protocol

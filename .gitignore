@@ -1,5 +1,5 @@
 # =========================
-# Android / Gradle (LedCar01Controller)
+# Android / Gradle (LedCar)
 # =========================
 *.apk
 *.ap_
@@ -20,7 +20,7 @@ captures/
 .idea/
 
 # =========================
-# .NET (LedCar01Simulator)
+# .NET (LedCar_Simulator)
 # =========================
 obj/
 bin/
@@ -34,7 +34,7 @@ __pycache__/
 # =========================
 # GitHub release publish token (local secret, never commit)
 # =========================
-/LedCar01Controller/github_release.properties
+/LedCar/github_release.properties
 
 # =========================
 # Operating System files

@@ -40,7 +40,7 @@ $tag = "V$versionName"
 
 $apkPath = Join-Path $root 'app\build\outputs\apk\release\app-release.apk'
 if (-not (Test-Path $apkPath)) { Write-Error "APK not found at $apkPath - build the release variant first (gradlew assembleRelease)."; exit 1 }
-$apkName = "LedCar01Controller_$tag.apk"
+$apkName = "LedCar_$tag.apk"
 
 # Pull this version's entry out of CHANGELOG.md for the release body / in-app
 # "what's new" text. Falls back to a generic note (with a loud warning) if

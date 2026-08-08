@@ -21,8 +21,8 @@ support independent RGB + DMX zone control.
 
 | Path | What it is |
 |---|---|
-| [`LedCar01Controller/`](LedCar01Controller) | The Android app (Java) — the actual daily-driver controller |
-| [`LedCar01Simulator/`](LedCar01Simulator) | A Windows BLE GATT peripheral simulator (C# + optional Python GUI) used to reverse-engineer and regression-test the protocol without the real strip powered on |
+| [`LedCar/`](LedCar) | The Android app (Java) — the actual daily-driver controller |
+| [`LedCar_Simulator/`](LedCar_Simulator) | A Windows BLE GATT peripheral simulator (C# + optional Python GUI) used to reverse-engineer and regression-test the protocol without the real strip powered on |
 | [`PROTOCOL.md`](PROTOCOL.md) | Standalone deep-dive protocol reference (byte-level frame tables, how each finding was verified) |
 
 ## App features
@@ -56,26 +56,26 @@ Requirements: Android Studio (or a JDK 17+ / Android SDK command-line
 toolchain), `compileSdk 34`, `minSdk 26`.
 
 ```bash
-cd LedCar01Controller
+cd LedCar
 ./gradlew assembleDebug      # debug build
 ./gradlew assembleRelease    # release build (app/build/outputs/apk/release/)
 ```
 
-Open the `LedCar01Controller/` folder directly in Android Studio to run/debug
+Open the `LedCar/` folder directly in Android Studio to run/debug
 on a device — the strip advertises as `LEDCAR-01-...` over BLE, so a real
-unit (or [LedCar01Simulator](LedCar01Simulator), see below) is needed to test
+unit (or [LedCar_Simulator](LedCar_Simulator), see below) is needed to test
 against.
 
 ### Running the simulator
 
-`LedCar01Simulator` hosts a real BLE GATT peripheral on a Windows PC,
+`LedCar_Simulator` hosts a real BLE GATT peripheral on a Windows PC,
 renamed to `LEDCAR-01-SIM01` so the app's (and the original vendor app's)
 name-prefix filter accepts it, and logs every decoded frame it receives —
 this is how the protocol below was reverse-engineered and confirmed against
 real vendor-app traffic.
 
 ```bash
-cd LedCar01Simulator
+cd LedCar_Simulator
 dotnet run
 ```
 
@@ -87,7 +87,7 @@ simulator for driving it without the app.
 The app checks `https://api.github.com/repos/FuzzBC/ledcar_vw_cc/releases/latest`
 on launch. If the release's tag encodes a newer `versionCode` than the
 installed build, it offers an in-app download + install — no Play Store
-involved. See [`UpdateChecker.java`](LedCar01Controller/app/src/main/java/com/ledcar01/controller/UpdateChecker.java)
+involved. See [`UpdateChecker.java`](LedCar/app/src/main/java/com/ledcar01/controller/UpdateChecker.java)
 for the exact comparison logic.
 
 **Publishing a release** (maintainers): bump `version.properties`, build
@@ -103,7 +103,7 @@ and pulls the release notes straight out of `CHANGELOG.md`.
 
 Reverse engineered from the decompiled vendor app
 (`com.home.net.NetConnectBle`) and confirmed against real vendor-app traffic
-captured by [LedCar01Simulator](LedCar01Simulator).
+captured by [LedCar_Simulator](LedCar_Simulator).
 
 ## Transport
 
@@ -122,9 +122,9 @@ positions are filled with `0xFF`.
 ## Commands
 
 Builders live in
-[`Car01Protocol.java`](LedCar01Controller/app/src/main/java/com/ledcar01/controller/Car01Protocol.java);
+[`Car01Protocol.java`](LedCar/app/src/main/java/com/ledcar01/controller/Car01Protocol.java);
 the simulator's decoder is in
-[`Program.cs`](LedCar01Simulator/Program.cs).
+[`Program.cs`](LedCar_Simulator/Program.cs).
 
 | Command | Frame | Builder method | Status |
 |---|---|---|---|
@@ -198,7 +198,7 @@ resource arrays:
 | Tab | Frame | Id range | Source method / resource |
 |---|---|---|---|
 | "RGB Color" tab | `7E FF 03 <id> 03 FF FF FF EF` | 135–157 (23 effects) | `setRgbMode()` → `car_mode` array, see table below |
-| "DMX zone" tab | `7B FF 03 <id> FF FF FF FF BF` | 1–210, plus `255`=Auto | `setRgbMode()` (DMX branch) → `dmx_model` array (211 entries, all extracted into `DmxModeNames` in [`Program.cs`](LedCar01Simulator/Program.cs)) |
+| "DMX zone" tab | `7B FF 03 <id> FF FF FF FF BF` | 1–210, plus `255`=Auto | `setRgbMode()` (DMX branch) → `dmx_model` array (211 entries, all extracted into `DmxModeNames` in [`Program.cs`](LedCar_Simulator/Program.cs)) |
 
 Speed mirrors this split too:
 
@@ -234,7 +234,7 @@ Fixed to send `7E FF 03 <id> 03 FF FF FF EF` instead, matching real traffic.
 
 The DMX zone tab's 211-entry preset list (ids 1–210, plus `255` = Auto) is
 long enough to live only in code — see `DmxModeNames` in
-[`Program.cs`](LedCar01Simulator/Program.cs).
+[`Program.cs`](LedCar_Simulator/Program.cs).
 
 ## Connection handshake
 
@@ -261,10 +261,10 @@ reference:
 
 ## How this was verified
 
-1. [LedCar01Simulator](LedCar01Simulator) hosts a real BLE GATT peripheral on
+1. [LedCar_Simulator](LedCar_Simulator) hosts a real BLE GATT peripheral on
    a Windows PC (renamed to `LEDCAR-01-SIM01` so the vendor app's name-prefix
    filter accepts it) and logs every raw frame it receives, decoded.
-2. Connected both the custom [LedCar01Controller](LedCar01Controller) app and
+2. Connected both the custom [LedCar](LedCar) app and
    the original vendor app to it and exercised the controls.
 3. Power off and color changes from the **original vendor app** matched the
    predicted frames byte-for-byte, confirming the reverse-engineered protocol

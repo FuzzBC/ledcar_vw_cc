@@ -7,7 +7,7 @@ using Windows.Foundation;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Storage.Streams;
 
-namespace LedCar01Simulator;
+namespace LedCar_Simulator;
 
 /// <summary>
 /// Emulates a LEDCAR-01 BLE peripheral on this PC's Bluetooth radio so the

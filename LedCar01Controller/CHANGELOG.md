@@ -7,6 +7,15 @@ Used as the release notes body when publishing via `publish_release.ps1`
 (the script pulls the entry matching the current `versionName` straight out
 of this file).
 
+## 1.005
+- Changed: the "both RGB and DMX selected" indicator is now two short bands
+  (one RGB-colored, one DMX-colored) chasing each other around the pill with
+  a fixed gap between them.
+- Fixed: a sliver of color could show in the pill's square corner wedges
+  outside its rounded shape - the zone pill's container never actually
+  clipped to the rounded silhouette, it just relied on each piece inside
+  rounding itself.
+
 ## 1.004
 - Changed: the "both RGB and DMX selected" indicator is now a steady ring in
   the blended RGB/DMX color with an occasional random flicker, like a

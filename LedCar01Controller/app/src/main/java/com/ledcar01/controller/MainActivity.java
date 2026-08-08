@@ -310,6 +310,17 @@ public class MainActivity extends AppCompatActivity implements BleDeviceManager.
         btnPower = findViewById(R.id.btnPower);
         btnSettings = findViewById(R.id.btnSettings);
         zoneToggleContainer = findViewById(R.id.zoneToggleContainer);
+        // Hard-clip everything inside to the pill's true rounded silhouette -
+        // without this, a button's own background or the border glow's blur
+        // can show a sliver of color in the square corner wedges outside the
+        // rounded drawables but still inside this container's rectangular bounds.
+        zoneToggleContainer.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), view.getHeight() / 2f);
+            }
+        });
+        zoneToggleContainer.setClipToOutline(true);
         zoneMarchingBorder = findViewById(R.id.zoneMarchingBorder);
         btnZoneRgb = findViewById(R.id.btnZoneRgb);
         btnZoneDmx = findViewById(R.id.btnZoneDmx);

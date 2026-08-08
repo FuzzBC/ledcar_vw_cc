@@ -7,6 +7,23 @@ Used as the release notes body when publishing via `publish_release.ps1`
 (the script pulls the entry matching the current `versionName` straight out
 of this file).
 
+## 1.010
+- Fixes the scan shimmer/lock stopping early: the app used to infer
+  "still scanning" by substring-matching `BleDeviceManager`'s free-text
+  status messages, so the moment the first found device started
+  connecting ("Connecting to X...") it looked like scanning had ended -
+  shimmer off, controls unlocked - even though the scan was still actively
+  running in the background for up to 12 more seconds. `BleDeviceManager`
+  now reports scan start/stop as its own explicit event
+  (`Listener.onScanningChanged`), independent of status text.
+- Scanning now stops itself shortly after the first device is found
+  (2.5s grace window, to still catch a second/third unit advertising a
+  beat later) instead of always running the full ~12s timeout regardless
+  of whether anything's already been found.
+- Ported from `ledcar_vw_cc_headunit` V1.005/V1.006, where this showed up
+  as a visible pause between scans on head-unit hardware; same latent bug
+  here, just less noticeable on faster phone BLE stacks.
+
 ## 1.009
 - Hardens `BleDeviceManager` against BLE stacks that silently fail a
   characteristic write: the write characteristic's write type is now set

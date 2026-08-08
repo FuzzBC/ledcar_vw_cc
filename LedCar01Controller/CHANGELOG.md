@@ -7,6 +7,12 @@ Used as the release notes body when publishing via `publish_release.ps1`
 (the script pulls the entry matching the current `versionName` straight out
 of this file).
 
+## 1.008
+- Changed: new app icon - a neon VW badge, properly transparent (real alpha
+  channel, not a flattened white background) and recentered/rescaled within
+  the adaptive-icon safe zone at every density bucket so it doesn't get
+  clipped by round/squircle launcher masks.
+
 ## 1.007
 - Changed: saved-color "egg" swatches are now a stand-up pill (20x35dp)
   split by a clean diagonal from bottom-left to top-right, instead of the

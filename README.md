@@ -8,6 +8,12 @@ support independent RGB + DMX zone control.
 
 ![App overview](docs/screenshots/app_overview.png)
 
+<p align="center">
+  <img src="docs/screenshots/settings.png" width="30%" alt="Settings dialog" />
+  <img src="docs/screenshots/mode_picker.png" width="30%" alt="Mode picker dialog" />
+  <img src="docs/screenshots/custom_color.png" width="30%" alt="Custom RGB color dialog" />
+</p>
+
 ## What's in this repo
 
 | Path | What it is |

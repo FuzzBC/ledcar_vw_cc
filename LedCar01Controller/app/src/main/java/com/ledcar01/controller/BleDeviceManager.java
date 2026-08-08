@@ -192,7 +192,16 @@ public class BleDeviceManager {
             // this class, which assumes single-threaded (main-thread-only) access.
             ScanRecord record = result.getScanRecord();
             List<ParcelUuid> uuids = record != null ? record.getServiceUuids() : null;
-            if (uuids == null || !uuids.contains(new ParcelUuid(SERVICE_UUID))) {
+            boolean advertisesServiceUuid = uuids != null && uuids.contains(new ParcelUuid(SERVICE_UUID));
+            // Some real units (confirmed via nRF Connect against a live LEDCAR-01-4000)
+            // don't advertise the service UUID at all - only Flags + Complete Local
+            // Name. Falling back to the same name-prefix check used elsewhere
+            // (displayLabel()) means those units are still found instead of the
+            // scan silently matching nothing and "Connect" never firing.
+            String advertisedName = record != null ? record.getDeviceName() : null;
+            boolean nameMatches = advertisedName != null
+                    && advertisedName.toUpperCase(Locale.US).startsWith("LEDCAR-01");
+            if (!advertisesServiceUuid && !nameMatches) {
                 return;
             }
             BluetoothDevice device = result.getDevice();

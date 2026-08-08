@@ -3,9 +3,18 @@
 Each entry's heading is the exact `versionName` (matches the app's settings
 "Version" label and the GitHub release tag `V<versionName>`). Newest first.
 
-Bundled into the app at build time (`copyChangelog` in `app/build.gradle`,
-copied to `app/src/main/assets/CHANGELOG.md`) and used as the release notes
-body when publishing via `publish_release.ps1`.
+Used as the release notes body when publishing via `publish_release.ps1`
+(the script pulls the entry matching the current `versionName` straight out
+of this file).
+
+## 1.002
+- Fixed: some real LEDCAR-01 units never showed up to connect. The scanner
+  required the device to advertise its BLE service UUID before it would even
+  attempt a connection, but some units (confirmed via nRF Connect against a
+  live LEDCAR-01-4000) only advertise Flags + Complete Local Name, no
+  service UUID at all - so the app silently ignored them every time, not a
+  timeout or failed connection. Now also matches on the `LEDCAR-01` name
+  prefix, same as the rest of the app already does.
 
 ## 1.001
 - Initial public release: dual RGB/DMX zone control, HSV color wheel, 200+
